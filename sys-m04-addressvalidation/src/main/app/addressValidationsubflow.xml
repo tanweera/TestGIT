@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <!-- <ws:consumer-config name="Web_Service_Consumer" service="AddressManagementService" port="AddressManagementServicePortType" serviceAddress="http://webservicesgatewayrtb2-sen.corp.sprint.com:80/services/AddressManagementService"  doc:name="Web Service Consumer" wsdlLocation="http://webservicesgatewayrtb2-sen.corp.sprint.com/services/AddressManagementService?wsdl"/> -->
+    <context:property-placeholder location="sys-m04-addressvalidationrtb1.properties,common-error.properties" />
+    <ws:consumer-config name="Web_Service_Consumer" service="AddressManagementService" port="AddressManagementServicePortType" serviceAddress="${eai.serviceAddress}/AddressManagementService" wsdlLocation="${eai.serviceAddress}/AddressManagementService?wsdl" doc:name="Web Service Consumer"/>
+    <flow name="addressvalidationservicechoiceflow">
+        <set-variable variableName="mock" value="${mockService.flag}" doc:name="Mock Value"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.mock=='false']">
+                <flow-ref name="addressvalidationinfosubflow" doc:name="addressvalidationinfosubflow"/>
+            </when>
+            <when expression="#[flowVars.mock=='true']">
+                <set-payload value="{   &quot;validateAddressResponse&quot;: {     &quot;validatedAddressList&quot;: {       &quot;validatedAddressInfo&quot;: {         &quot;addressType&quot;: &quot;?&quot;,         &quot;addressLine1&quot;: &quot;?&quot;,         &quot;addressLine2&quot;: &quot;?&quot;,         &quot;ruralNumber&quot;: &quot;?&quot;,         &quot;ruralRoute&quot;: &quot;?&quot;,         &quot;pobNumber&quot;: &quot;?&quot;,         &quot;houseNumber&quot;: &quot;?&quot;,         &quot;apartmentNumber&quot;: &quot;?&quot;,         &quot;apartmentType&quot;: &quot;?&quot;,         &quot;streetPrefix&quot;: &quot;?&quot;,         &quot;streetName&quot;: &quot;?&quot;,         &quot;streetSuffix&quot;: &quot;?&quot;,         &quot;leadingDirection&quot;: &quot;?&quot;,         &quot;trailingDirection&quot;: &quot;?&quot;,         &quot;city&quot;: &quot;?&quot;,         &quot;state&quot;: &quot;?&quot;,         &quot;zipCode&quot;: &quot;?&quot;,         &quot;zip4Code&quot;: &quot;?&quot;,         &quot;country&quot;: &quot;usa&quot;,         &quot;companyName&quot;: &quot;?&quot;,         &quot;usUrbanName&quot;: &quot;?&quot;,         &quot;addressNotFoundInCode1Ind&quot;: &quot;?&quot;,         &quot;multipleMatchesFoundInd&quot;: &quot;?&quot;,         &quot;additionalAddressInfo&quot;: {           &quot;ruralRouteHighwayContractCode&quot;: &quot;?&quot;,           &quot;privateMailbox&quot;: &quot;?&quot;,           &quot;privateMailboxType&quot;: &quot;?&quot;,           &quot;deliveryPointValidationCode&quot;: &quot;?&quot;,           &quot;deliveryPointValidationNote&quot;: &quot;?&quot;,           &quot;confidence&quot;: &quot;?&quot;,           &quot;recordType&quot;: &quot;?&quot;,           &quot;matchScore&quot;: &quot;?&quot;         }       }     }   } }" doc:name="Set Payload"/>
+            </when>
+        </choice>
+        <exception-strategy ref="ChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <sub-flow name="addressvalidationinfosubflow">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+}]]></dw:set-payload>
+            <dw:set-variable variableName="addressLine1"><![CDATA[%dw 1.0
+%output application/java
+---
+
+inboundProperties.'http.query.params'.addressLine1
+]]></dw:set-variable>
+            <dw:set-variable variableName="city"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.city]]></dw:set-variable>
+            <dw:set-variable variableName="state"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.state]]></dw:set-variable>
+            <dw:set-variable variableName="zipCode"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.zipCode]]></dw:set-variable>
+            <dw:set-variable variableName="zip4Code"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.zip4Code]]></dw:set-variable>
+            <dw:set-variable variableName="country"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.country]]></dw:set-variable>
+            <dw:set-variable variableName="companyName"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.companyName]]></dw:set-variable>
+            <dw:set-variable variableName="usUrbanName"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.usUrbanName]]></dw:set-variable>
+            <dw:set-variable variableName="multipleMatchInd"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.multipleMatchInd]]></dw:set-variable>
+            <dw:set-variable variableName="maxMatchingAddressesToBeReturned"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.maxMatchingAddressesToBeReturned]]></dw:set-variable>
+            <dw:set-variable variableName="deliveryPointValidationInd"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.query.params'.deliveryPointValidationInd]]></dw:set-variable>
+            <dw:set-variable variableName="addressLine2"><![CDATA[%dw 1.0
+%output application/java
+---
+
+inboundProperties.'http.query.params'.addressLine2]]></dw:set-variable>
+        </dw:transform-message>
+        <logger message="test + #[flowVars.addressLine1]" level="DEBUG" doc:name="Logger"/>
+        <flow-ref name="CreateTrackingMessageHeaderVariables" doc:name="CreateTrackingMessageHeaderVariables"/>
+        <flow-ref name="SET_EAI_TRACKING_MESSAGE_HEADER" doc:name="SET_EAI_TRACKING_MESSAGE_HEADER"/>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="DEBUG" doc:name="Logger"/>
+        <dw:transform-message metadata:id="59de94d3-3639-4378-9151-083ac34a2219" doc:name="soap-req-transformation">
+            <dw:input-variable variableName="conversationId"/>
+            <dw:input-variable variableName="devicecSerialType"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml encoding="UTF-8"
+%namespace ns0 http://integration.sprint.com/interfaces/validateAddress/v1/validateAddress.xsd
+---
+{
+	ns0#validateAddress: {
+		ns0#addressInfo: {
+			(ns0#addressLine1: flowVars.addressLine1)
+			when flowVars.addressLine1?,
+			(ns0#addressLine2: flowVars.addressLine2)
+			when flowVars.addressLine2?,
+			(ns0#city: flowVars.city)
+			when flowVars.city?,
+			(ns0#state: flowVars.state)
+			when flowVars.state?,
+			(ns0#zipCode: flowVars.zipCode)
+			when flowVars.zipCode?,
+			 (ns0#zip4Code: flowVars.zip4Code)
+			 when flowVars.zip4Code?,
+			 (ns0#country: flowVars.country)
+			 when flowVars.country?,
+			  (ns0#companyName: flowVars.companyName)
+			 when flowVars.companyName?,
+			  (ns0#usUrbanName: flowVars.usUrbanName)
+			 when flowVars.usUrbanName?
+			 },
+			ns0#additionalValidationOptions: {
+			  (ns0#multipleMatchInd: flowVars.multipleMatchInd)
+			   when flowVars.multipleMatchInd?,
+			     (ns0#maxMatchingAddressesToBeReturned: flowVars.maxMatchingAddressesToBeReturned)
+			   when flowVars.maxMatchingAddressesToBeReturned?,
+			     (ns0#deliveryPointValidationInd: flowVars.deliveryPointValidationInd)
+			   when flowVars.deliveryPointValidationInd?
+			 	
+			 }
+			
+		}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="DEBUG" doc:name="Logger"/>
+        <ws:consumer config-ref="Web_Service_Consumer" operation="ValidateAddress" doc:name="Web Service Consumer"/>
+        <dw:transform-message metadata:id="324637fd-7590-4709-a191-86b936a40400" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json skipNullOn="everywhere"
+
+%namespace ns01 http://integration.sprint.com/interfaces/validateAddress/v1/validateAddress.xsd
+---
+{
+	ns01#validateAddressResponse: {
+		ns01#validatedAddressList: {
+			(payload.ns01#validateAddressResponse.ns01#validatedAddressList.*ns01#validatedAddressInfo map ((validatedAddressInfo , indexOfValidatedAddressInfo) -> {
+				ns01#validatedAddressInfo: {
+					(ns01#addressType: validatedAddressInfo.ns01#addressType)
+					when validatedAddressInfo.ns01#addressType? ,
+					(ns01#addressLine1: validatedAddressInfo.ns01#addressLine1)
+					when validatedAddressInfo.ns01#addressLine1?,
+					
+					(ns01#addressLine2: validatedAddressInfo.ns01#addressLine2)
+					when validatedAddressInfo.ns01#addressLine2?,
+					
+					(ns01#ruralNumber: validatedAddressInfo.ns01#ruralNumber)
+					when validatedAddressInfo.ns01#ruralNumber?,
+					
+					(ns01#ruralRoute: validatedAddressInfo.ns01#ruralRoute)
+					when validatedAddressInfo.ns01#ruralRoute?,
+					
+					(ns01#pobNumber: validatedAddressInfo.ns01#pobNumber)
+					when validatedAddressInfo.ns01#pobNumber?,
+					
+					(ns01#houseNumber: validatedAddressInfo.ns01#houseNumber)
+					when validatedAddressInfo.ns01#houseNumber?,
+					
+					(ns01#apartmentNumber: validatedAddressInfo.ns01#apartmentNumber)
+					when validatedAddressInfo.ns01#apartmentNumber?,
+					
+					(ns01#apartmentType: validatedAddressInfo.ns01#apartmentType)
+					when validatedAddressInfo.ns01#apartmentType?,
+					
+					(ns01#streetPrefix: validatedAddressInfo.ns01#streetPrefix)
+					when validatedAddressInfo.ns01#streetPrefix?,
+					
+					(ns01#streetName: validatedAddressInfo.ns01#streetName)
+					when validatedAddressInfo.ns01#streetName?,
+					
+					(ns01#streetSuffix: validatedAddressInfo.ns01#streetSuffix)
+					when validatedAddressInfo.ns01#streetSuffix?,
+					
+					(ns01#leadingDirection: validatedAddressInfo.ns01#leadingDirection)
+					when validatedAddressInfo.ns01#leadingDirection?,
+					
+					(ns01#trailingDirection: validatedAddressInfo.ns01#trailingDirection)
+					when validatedAddressInfo.ns01#trailingDirection?,
+					
+					(ns01#city: validatedAddressInfo.ns01#city)
+					when validatedAddressInfo.ns01#city?,
+					(ns01#state: validatedAddressInfo.ns01#state)
+					when validatedAddressInfo.ns01#state?,
+					(ns01#zipCode: validatedAddressInfo.ns01#zipCode)
+					when validatedAddressInfo.ns01#zipCode?,
+					
+					(ns01#zip4Code: validatedAddressInfo.ns01#zip4Code)
+					when validatedAddressInfo.ns01#zip4Code?,
+					
+					(ns01#country: validatedAddressInfo.ns01#country)
+					when validatedAddressInfo.ns01#country?,
+					
+					(ns01#companyName: validatedAddressInfo.ns01#companyName)
+					when validatedAddressInfo.ns01#companyName?,
+					
+					(ns01#usUrbanName: validatedAddressInfo.ns01#usUrbanName)
+					when validatedAddressInfo.ns01#usUrbanName?,
+					
+					(ns01#addressNotFoundInCode1Ind: validatedAddressInfo.ns01#addressNotFoundInCode1Ind as :boolean)
+					when validatedAddressInfo.ns01#addressNotFoundInCode1Ind?,
+					
+					(ns01#multipleMatchesFoundInd: validatedAddressInfo.ns01#multipleMatchesFoundInd as :boolean)
+					when validatedAddressInfo.ns01#multipleMatchesFoundInd?,
+					ns01#additionalAddressInfo: {
+						(ns01#ruralRouteHighwayContractCode: validatedAddressInfo.ns01#additionalAddressInfo.ns01#ruralRouteHighwayContractCode)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#ruralRouteHighwayContractCode?,
+						
+						(ns01#privateMailbox: validatedAddressInfo.ns01#additionalAddressInfo.ns01#privateMailbox)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#privateMailbox?,
+						
+						(ns01#privateMailboxType: validatedAddressInfo.ns01#additionalAddressInfo.ns01#privateMailboxType)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#privateMailboxType?,
+						
+						(ns01#deliveryPointValidationCode: validatedAddressInfo.ns01#additionalAddressInfo.ns01#deliveryPointValidationCode)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#deliveryPointValidationCode?,
+						
+						(ns01#deliveryPointValidationNote: validatedAddressInfo.ns01#additionalAddressInfo.ns01#deliveryPointValidationNote)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#deliveryPointValidationNote?,
+						
+						(ns01#confidence: validatedAddressInfo.ns01#additionalAddressInfo.ns01#confidence)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#confidence?,
+						
+						(ns01#recordType: validatedAddressInfo.ns01#additionalAddressInfo.ns01#recordType)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#recordType?,
+						(ns01#matchScore: validatedAddressInfo.ns01#additionalAddressInfo.ns01#matchScore)
+						when validatedAddressInfo.ns01#additionalAddressInfo.ns01#matchScore?
+					}
+				}
+			}))
+		}
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="DEBUG" doc:name="Logger"/>
+    </sub-flow>
+
+
+
+
+</mule>

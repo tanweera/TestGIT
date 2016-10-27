@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <choice-exception-strategy name="global-exception-strategyChoice_Exception_Strategy">
+        <rollback-exception-strategy maxRedeliveryAttempts="3" when="#[exception.causedBy( java.net.ConnectException)]" doc:name="Rollback Exception Strategy">
+            <logger message="inside connection ConnectException" level="ERROR" doc:name="Logger"/>
+            <on-redelivery-attempts-exceeded>
+                <logger message="redelivey exausted = #[exception]" level="ERROR" doc:name="Logger"/>
+            </on-redelivery-attempts-exceeded>
+        </rollback-exception-strategy>
+        <rollback-exception-strategy when="#[exception.causedBy( java.util.concurrent.TimeoutException)]" doc:name="Rollback Exception Strategy">
+            <logger message=" TimeoutException occured" level="ERROR" doc:name="Logger"/>
+            <on-redelivery-attempts-exceeded>
+                <logger message="TimeoutException retry exhausted" level="DEBUG" doc:name="Logger"/>
+            </on-redelivery-attempts-exceeded>
+        </rollback-exception-strategy>
+        <catch-exception-strategy when="#[exception.causedBy( java.lang.Exception)]" doc:name="Catch Exception Strategy">
+            <set-property propertyName="http.status" value="500" doc:name="Property"/>
+        </catch-exception-strategy>
+    </choice-exception-strategy>
+</mule>

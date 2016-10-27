@@ -1,0 +1,103 @@
+#%RAML 0.8
+title: sys-prepaidaddressvalidation
+version: v1.0
+baseUri:  http://localhost:8087/system
+mediaType: application/json
+
+traits:
+  - tracking-headers: !include traits/tracking-header.yaml
+  - id-field: !include traits/queryParams.yaml
+resourceTypes:
+  - readOnlyMember: !include resourceTypes/readOnlyCollection-item.yaml
+schemas:
+  - errorJSONResponse: !include schemas/error/errors.json
+  - sampleResponse: !include schemas/validateAddressResponse_Schema.json
+/systems:
+  /addressmanagementservice:
+    /addressvalidation: 
+      type: {
+        readOnlyMember: {
+          collectionItem-res-schema: sampleResponse,
+          collectionItem-res-example: !include examples/validateAddressSchemaResponse_Example.json,
+          errors-schema: errorJSONResponse,
+          errors-example: !include examples/error/errors.json
+        }
+      }  
+      description: |
+        This API will provide response for AddressValidationInfo EAI operation.
+      get:
+        description: |
+          This API will transform xml response of AddressValidation to JSON for applicable input.
+        queryParameters:
+          addressLine1:
+            description: |
+              First line of the address. This can include the RuralRouting number and POBox number
+            type: string
+            required: true
+            maxLength: 100
+            example: 1121 MILLER RD
+          addressLine2:
+            description: |
+             Second line of address if any
+            type: string
+            required: false
+            maxLength: 100
+          city:
+            description: |
+              City name
+            type: string
+            required: true
+            maxLength: 50
+            example: KALAMAZOO
+          state:
+            description: |
+              US State code
+            type: string
+            required: true
+            maxLength: 50
+            example: MI
+          zipCode:
+            description: |
+             5 digit zipcode
+            type: string
+            required: true
+            example: 49001
+          zip4Code:
+            description: |
+             4 digit zipcode extension
+            type: string
+            required: false
+          country:
+            description: |
+             3 letter country code or country name. Default USA.
+            type: string
+            required: false
+            maxLength: 50
+          companyName:
+            description: |
+             Name of company or firm
+            type: string
+            required: false
+            maxLength: 50
+          usUrbanName:
+            description: |
+              US Urbanization name, mainly for Peurto Rico addresses
+            type: string
+            required: false
+            maxLength: 50
+          multipleMatchInd:
+            description: |
+               Indicates whether multiple matching addresses should be returned or not.
+            type: boolean
+            required: false
+          maxMatchingAddressesToBeReturned:
+            description: |
+                Number of matching addresses to be returned.
+            type: integer
+            required: false
+          deliveryPointValidationInd:
+            description: |
+              If true CODE1validation will check if this Address can be delivered or not.
+            type: boolean
+            required: false
+      

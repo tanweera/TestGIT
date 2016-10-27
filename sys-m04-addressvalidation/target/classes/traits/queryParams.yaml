@@ -1,0 +1,6 @@
+queryParameters:
+  field:
+    description: |
+      Specifies what value is passed in URI parameter ID.
+    enum: [ban,subscriberId,mdn,deviceSerialNumber,ufmi,ipAddress, imsi, nai, hppttId]
+    required: true

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mock="http://www.mulesoft.org/schema/mule/mock"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    <spring:beans>
+        <spring:import resource="classpath:addressValidationsubflow.xml"/>
+           <spring:import resource="classpath:subflow__EAI-components.xml"/>
+         <spring:import resource="classpath:common-error.xml"/>
+    </spring:beans>
+    <munit:test name="querysubscriberdevicelist-test-suite" description="Test">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Input">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['InitialLogger']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]">
+                <mock:inbound-properties>
+                    <mock:inbound-property key="conversationid" value="123"/>
+                    <mock:inbound-property key="applicationId" value="AID"/>
+                    <mock:inbound-property key="applicationUserId" value="AID"/>
+                    <mock:inbound-property key="messageId" value="1000"/>
+                    <mock:inbound-property key="timeToLive" value="123"/>
+                    <mock:inbound-property key="messageDateTimeStamp" value="2009-12-07T00:00:00.000"/>
+                    <mock:inbound-property key="consumerId" value="123"/>
+                    <mock:inbound-property key="http.query.params" value="#[['addressLine1':'1121 MILLER RD','city':'KALAMAZOO','state':'MI','zipCode':'49001']]"/>
+                </mock:inbound-properties>
+            </mock:then-return>
+
+        </mock:when>
+          <logger message="flow vars:::::::::::::::#[flowVars.'soap.head']" level="INFO" doc:name="InitialLogger"/>
+        <flow-ref name="addressvalidationinfosubflow" doc:name="addressvalidationinfosubflow"/>
+     <munit:assert-on-equals expectedValue="200" actualValue="#[message.outboundProperties['http.status']]" doc:name="assertEquals"/>
+    </munit:test>
+</mule>

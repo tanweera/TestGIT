@@ -1,0 +1,10 @@
+[
+  {
+    "code": "400-001",
+    "description": "Description message for error code 400-001"
+  },
+  {
+    "code": "400-002",
+    "description": "Description message for error code 400-002"
+  }
+]

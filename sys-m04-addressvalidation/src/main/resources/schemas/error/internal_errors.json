@@ -1,0 +1,48 @@
+{
+	"id": "http://json-schema.org/common_errors.json",
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"description": "schema for common errors collection",
+	"type": "object",
+	"required": 
+	[
+		"code",
+		"errors"
+	],
+
+	"properties": 
+	{
+		"code": 
+		{
+			"type": "string"
+		},
+
+		"errors": 
+		{
+			"type": "array",
+			"minItems": 0,
+			"uniqueItems": true,
+			"items": 
+			{
+				"description": "schema for a error",
+				"type": "object",
+				"required": 
+				[
+					"code"
+				],
+
+				"properties": 
+				{
+					"code": 
+					{
+						"type": "string"
+					},
+
+					"description": 
+					{
+						"type": "string"
+					}
+				}
+			}
+		}
+	}
+}
